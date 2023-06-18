@@ -1,6 +1,7 @@
+import 'package:chatndong/controllers/auth_controller.dart';
 import 'package:chatndong/screens/chat.dart';
 import 'package:flutter/material.dart';
-
+import 'package:get/get.dart';
 import '../constants/users.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -11,8 +12,19 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  AuthController authController = Get.put(AuthController());
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    authController.getUsers(authController.token.value);
+    authController.initilizeSocket();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+
     return Stack(
       children: [
         Scaffold(
@@ -180,66 +192,102 @@ class _HomeScreenState extends State<HomeScreen> {
                         //list users chtas
                         SizedBox(
                           height: MediaQuery.of(context).size.height,
-                          child: ListView.builder(
-                            itemCount: users.length,
-                            itemBuilder: (context, index) => GestureDetector(
-                              onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => ChatScreen(
-                                    user: users[index],
-                                  ),
-                                ),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(bottom: 8.0),
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Container(
-                                          margin: const EdgeInsets.all(10),
-                                          child: CircleAvatar(
-                                            backgroundColor: Colors.black,
-                                            radius: 40,
-                                            child: ClipOval(
-                                              child: Image.network(
-                                                users[index]['avatar'],
-                                                fit: BoxFit.cover,
-                                                width: 80,
-                                                height: 120,
-                                              ),
+                          child: Obx(()=> ListView.builder(
+                                itemCount: authController.users.length,
+                                itemBuilder: (context, index) {
+                                  if(authController.currentUser['_id'] == authController.users[index]['_id']){
+                                    return SizedBox.shrink(); // Skip adding this user
+                                  }
+                                  return GestureDetector(
+                                    onTap: (){
+                                      String senderId= authController.currentUser['_id'];
+                                      String receiverId= authController.users[index]['_id'];
+                                      final room= {
+                                        'senderId': senderId,
+                                        'receiverId': receiverId
+                                      };
+                                     final token= authController.token.value;
+                                     final conversationId= authController.conversations.value['_id'];
+                                      // authController.getConversations(id, token);
+                                      // if(authController.conversations.value != null){
+                                      //   authController.getMessages(conversationId, token);
+                                      //   Navigator.of(context).push(
+                                      //     MaterialPageRoute(
+                                      //       builder: (context) => ChatScreen(
+                                      //         user:authController.users[index],
+                                      //           conversation: conversationId
+                                      //       ),
+                                      //     ),
+                                      //   );
+                                      // }else{}
+                                     authController.createConversations(room, token);
+                                      if(authController.conversations.value != null){
+                                        authController.getMessages(authController.conversations.value['_id'], token);
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) => ChatScreen(
+                                                user:authController.users[index],
+                                                conversation: conversationId
                                             ),
                                           ),
-                                        ),
-                                        Column(
-                                          children: [
-                                            Text(
-                                              users[index]['name'],
-                                              style: const TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold),
-                                            ),
-                                            const Padding(
-                                              padding:
-                                                  EdgeInsets.only(top: 8.0),
-                                              child: Text.rich(
-                                                TextSpan(text: 'Bonjour '),
+                                        );
+                                      }
+
+
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(bottom: 8.0),
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Container(
+                                                margin: const EdgeInsets.all(10),
+                                                child: CircleAvatar(
+                                                  backgroundColor: Colors.black,
+                                                  radius: 40,
+                                                  child: ClipOval(
+                                                    child: Image.network(
+                                                      "https://picsum.photos/200/300",
+                                                      fit: BoxFit.cover,
+                                                      width: 80,
+                                                      height: 120,
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                              Column(
+                                                children: [
+                                                  Text(
+                                                    authController.users[index]
+                                                        ['username'],
+                                                    style: const TextStyle(
+                                                        color: Colors.black,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                  ),
+                                                  const Padding(
+                                                    padding:
+                                                        EdgeInsets.only(top: 8.0),
+                                                    child: Text.rich(
+                                                      TextSpan(text: 'Bonjour '),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          const Divider(
+                                            height: .1,
+                                            thickness: .2,
+                                            endIndent: 0,
+                                            color: Colors.grey,
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                    const Divider(
-                                      height: .1,
-                                      thickness: .2,
-                                      endIndent: 0,
-                                      color: Colors.grey,
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
+                                  );
+                                }),
                           ),
                         ),
                       ],
@@ -263,35 +311,29 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                IconButton(
-                  icon: Icon(
+                RawMaterialButton(
+                  onPressed: () {},
+                  child: Icon(
                     Icons.call,
                     size: 35,
                     color: Colors.white60,
                   ),
-                  onPressed: () {
-                    // Action du bouton Home
-                  },
                 ),
-                IconButton(
-                  icon: Icon(
+                RawMaterialButton(
+                  onPressed: () {},
+                  child: Icon(
                     Icons.message_outlined,
                     size: 35,
                     color: Colors.white60,
                   ),
-                  onPressed: () {
-                    // Action du bouton Search
-                  },
                 ),
-                IconButton(
-                  icon: Icon(
+                RawMaterialButton(
+                  onPressed: () {},
+                  child: Icon(
                     Icons.person,
                     size: 35,
                     color: Colors.white60,
                   ),
-                  onPressed: () {
-                    // Action du bouton Settings
-                  },
                 ),
               ],
             ),

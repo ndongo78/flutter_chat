@@ -29,6 +29,10 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   ionicons:
+  http:
+  get:
+  jwt_decode_full:
+  socket_io_client: ^1.0.2
   flutter:
     sdk: flutter
 

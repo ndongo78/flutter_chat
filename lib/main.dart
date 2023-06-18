@@ -1,8 +1,22 @@
 import 'package:chatndong/screens/Home_screen.dart';
+import 'package:chatndong/screens/login_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp( GetMaterialApp
+    (
+      theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          scaffoldBackgroundColor: Color(0xFF040303),
+          appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF040303),
+          titleTextStyle: TextStyle(color: Colors.white)
+          ),
+      ),
+      debugShowCheckedModeBanner: false,
+      home: MyApp()
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -23,7 +37,7 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: HomeScreen()
+      home: const Login()
     );
   }
 }
