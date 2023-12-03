@@ -15,7 +15,7 @@ void main() {
           ),
       ),
       debugShowCheckedModeBanner: false,
-      home: MyApp()
+      home: const MyApp()
   ));
 }
 

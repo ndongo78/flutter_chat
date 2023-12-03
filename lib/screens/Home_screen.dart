@@ -24,7 +24,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return Stack(
       children: [
         Scaffold(
@@ -192,22 +191,28 @@ class _HomeScreenState extends State<HomeScreen> {
                         //list users chtas
                         SizedBox(
                           height: MediaQuery.of(context).size.height,
-                          child: Obx(()=> ListView.builder(
+                          child: Obx(
+                            () => ListView.builder(
                                 itemCount: authController.users.length,
                                 itemBuilder: (context, index) {
-                                  if(authController.currentUser['_id'] == authController.users[index]['_id']){
-                                    return SizedBox.shrink(); // Skip adding this user
+                                  if (authController.currentUser['_id'] ==
+                                      authController.users[index]['_id']) {
+                                    return SizedBox
+                                        .shrink(); // Skip adding this user
                                   }
                                   return GestureDetector(
-                                    onTap: (){
-                                      String senderId= authController.currentUser['_id'];
-                                      String receiverId= authController.users[index]['_id'];
-                                      final room= {
+                                    onTap: () {
+                                      String senderId =
+                                          authController.currentUser['_id'];
+                                      String receiverId =
+                                          authController.users[index]['_id'];
+                                      final room = {
                                         'senderId': senderId,
                                         'receiverId': receiverId
                                       };
-                                     final token= authController.token.value;
-                                     final conversationId= authController.conversations.value['_id'];
+                                      final token = authController.token.value;
+                                      final conversationId = authController
+                                          .conversations.value['_id'];
                                       // authController.getConversations(id, token);
                                       // if(authController.conversations.value != null){
                                       //   authController.getMessages(conversationId, token);
@@ -216,33 +221,58 @@ class _HomeScreenState extends State<HomeScreen> {
                                       //       builder: (context) => ChatScreen(
                                       //         user:authController.users[index],
                                       //           conversation: conversationId
-                                      //       ),
+                                      //       ), 6515c39581673ace832fc03a
                                       //     ),
                                       //   );
                                       // }else{}
-                                     authController.createConversations(room, token);
-                                      if(authController.conversations.value != null){
-                                        authController.getMessages(authController.conversations.value['_id'], token);
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) => ChatScreen(
-                                                user:authController.users[index],
-                                                conversation: conversationId
-                                            ),
-                                          ),
-                                        );
-                                      }
-
-
+                                      authController
+                                          .createConversations(room, token)
+                                          .then((value) => {
+                                                authController.getMessages(
+                                                    authController.conversations
+                                                        .value['_id'],
+                                                    token),
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ChatScreen(
+                                                            user: authController
+                                                                .users[index],
+                                                            conversation:
+                                                                conversationId),
+                                                  ),
+                                                )
+                                              })
+                                          .catchError((error) => {
+                                                print(
+                                                    "Error creating conversation $error")
+                                              });
+                                      // if (authController.conversations.value !=
+                                      //     {}) {
+                                      //   authController.getMessages(
+                                      //       authController
+                                      //           .conversations.value['_id'],
+                                      //       token);
+                                      //   Navigator.of(context).push(
+                                      //     MaterialPageRoute(
+                                      //       builder: (context) => ChatScreen(
+                                      //           user:
+                                      //               authController.users[index],
+                                      //           conversation: conversationId),
+                                      //     ),
+                                      //   );
+                                      // }
                                     },
                                     child: Padding(
-                                      padding: const EdgeInsets.only(bottom: 8.0),
+                                      padding:
+                                          const EdgeInsets.only(bottom: 8.0),
                                       child: Column(
                                         children: [
                                           Row(
                                             children: [
                                               Container(
-                                                margin: const EdgeInsets.all(10),
+                                                margin:
+                                                    const EdgeInsets.all(10),
                                                 child: CircleAvatar(
                                                   backgroundColor: Colors.black,
                                                   radius: 40,
@@ -267,10 +297,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                                             FontWeight.bold),
                                                   ),
                                                   const Padding(
-                                                    padding:
-                                                        EdgeInsets.only(top: 8.0),
+                                                    padding: EdgeInsets.only(
+                                                        top: 8.0),
                                                     child: Text.rich(
-                                                      TextSpan(text: 'Bonjour '),
+                                                      TextSpan(
+                                                          text: 'Bonjour '),
                                                     ),
                                                   ),
                                                 ],
